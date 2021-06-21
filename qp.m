@@ -1,12 +1,19 @@
-function U = qp(N, Yd, z0, u0, is_backward)
+%
+% Quadratic programming for parking control
+%
+% developed by Soonkyu Jeong
+% last modified Jun 21 2021
+%
+
+function U = qp(N, A, B, C, Yd, z0, u0)
 
 params;
 
-% matrices to compute the predicted error and control energy
+% matrices to compute
 G = zeros(N,2);
 F = zeros(N,1);
 H = zeros(N);
-D = diag([1 1 1 1 1 0]) + diag([-1 -1 -1 -1 -1],1);
+D = diag([ones(1,N-1) 0]) + diag(-1*ones(1,N-1),1);
 
 % 1) input constraint
 Au1 = [eye(N); -eye(N)];
@@ -14,22 +21,11 @@ bu1 = tan(30*deg)/(Lb*cos(0*deg)^3) * ones(2*N,1);
 
 % 2) output constraint
 Ay = [eye(N); -eye(N)];
-by = [(O1.y + W2 - S)*ones(N,1); -(O1.y - W2 + S)*ones(N,1)];
+by = (W2-S)*ones(2*N,1);
 
 for i = 1:N
-    if is_backward(i)
-        Dx = -0.1;
-    else
-        Dx = 0.1;
-    end
-    
-    % state-space model
-    A = [1 Dx; 0 1];
-    B = [Dx^2/2; Dx];
-    C = [1 0];
-    
     G(i,:) = C*A^i;
-    F(i,:) = C*A^(i-1)*B;
+    F(i) = C*A^(i-1)*B;
     if i > 1
         row = zeros(1,N);
         for j = i:-1:2
