@@ -2,7 +2,7 @@
 % Reference trajectory for parking control
 %
 % developed by Soonkyu Jeong
-% last modified Jun 21 2021
+% last modified Jun 26 2021
 %
 
 function [yr, dyr, ddyr] = ref_traj(k, xs)

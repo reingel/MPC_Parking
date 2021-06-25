@@ -2,7 +2,7 @@
 % Parking control with MPC
 %
 % developed by Soonkyu Jeong
-% last modified Jun 21, 2021
+% last modified Jun 26, 2021
 %
 
 clear
@@ -48,7 +48,7 @@ for i = 1:n
     
     u0 = u(max(i-1,1)); % minimum index is 1
     
-    if Xi < Ax % car is far from the parking space
+    if Xi < 3.8 % car is far from the parking space
         z0 = [z23(1,i) - O1.y; z23(2,i)];
         xs = Xi + Dx*[1:N]';
         Yd = ref_traj(1,xs);
@@ -141,6 +141,8 @@ for i = 1:n
     grid on
     axis equal
     axis([-0.2 x_max 1.5 y_max])
+    xlabel('x[m]')
+    ylabel('y[m]')
 
     plot(z1(1:i),z23(1,1:i),'b')
     Rcar = [cos(THi) -sin(THi); sin(THi) cos(THi)];
@@ -152,8 +154,23 @@ for i = 1:n
     
     % termination condition
     if Yi < Gp.y
+        ns = i; % no. of simulation steps
         break
     end
 end
 
 close(vidObj);
+
+
+is = find(z1 == max(z1)); % index for switchback
+tt = t(1:ns);
+x = [z1(1:is) z23(1,is+1:ns)-O2.y];
+y = [z23(1,1:is) O2.x-z1(is+1:ns)];
+theta = [z23(2,1:is) z23(2,is+1:ns)-90*deg];
+mu2 = u(1:ns);
+delta = atan(Lb*cos(theta).^3.*mu2);
+figure(10)
+plot(tt,delta/deg,tt(is)*[1 1],[-30 30],'k--'),grid
+xlabel('time [sec]')
+title('steering angle [deg]')
+

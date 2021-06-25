@@ -2,7 +2,7 @@
 % Quadratic programming for parking control
 %
 % developed by Soonkyu Jeong
-% last modified Jun 21 2021
+% last modified Jun 26 2021
 %
 
 function U = qp(N, A, B, C, Yd, z0, u0)
